@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tournament App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      text-align: center;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wallet-btn, .notif-btn {
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .wallet-btn {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .notif-btn {
+      background-color: #1b03f4;
+      color: white;
+      position: relative;
+    }
+
+    .notif-btn.unread {
+      background-color: #e53935;
+    }
+
+    main {
+      padding: 50px 20px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .main-btn {
+      padding: 18px 40px;
+      font-size: 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background-color: #03a9f4;
+      color: white;
+      transition: 0.3s;
+      width: 260px;
+    }
+
+    .main-btn:hover {
+      background-color: #0288d1;
+    }
+
+    .main-btn span {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title">🏆 Tournament App</div>
+    <div class="header-right">
+      <button id="notifButton" class="notif-btn"><span>🔔</span> Notifications</button>
+      <div class="wallet-btn">💰 ₹<span id="walletBalance">0</span></div>
+    </div>
+  </header>
+
+  <main>
+    <h1>Welcome to the Tournament App!</h1>
+    <div class="button-container">
+      <a href="profile.html"><button class="main-btn"><span>👤</span>My Profile</button></a>
+      <a href="tournaments.html"><button class="main-btn"><span>🎮</span>See Tournaments</button></a>
+      <a href="wallet.html"><button class="main-btn"><span>💰</span>MY WALLET</button></a>
+      <a href="about.html"><button class="main-btn"><span>ℹ️</span>About Us</button></a>
+    </div>
+  </main>
+
+  <script>
+    // Load wallet balance
+    const balance = localStorage.getItem("walletBalance") || "0";
+    document.getElementById("walletBalance").textContent = balance;
+
+    // Notification indicator
+    const notifButton = document.getElementById("notifButton");
+    const hasUnread = localStorage.getItem("unreadNotif") === "true";
+
+    if (hasUnread) {
+      notifButton.classList.add("unread");
+    }
+
+    notifButton.addEventListener("click", () => {
+      alert("🛎 You have a new tournament update from Admin!");
+      localStorage.setItem("unreadNotif", "false");
+      notifButton.classList.remove("unread");
+    });
+
+    // Example: To simulate a new notification from admin, run this in the browser   console:
+    // localStorage.setItem("unreadNotif", "true");
+  </script>
+  <script src="wallet-sync.js"></script>
+
+
+</body>
+</html>
