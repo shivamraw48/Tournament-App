@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tournament App - Login</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    input.error {
+      border: 2px solid #ff6b6b;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #03a9f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #0288d1;
+    }
+
+    .link {
+      font-size: 14px;
+      color: #ffeb3b;
+      text-decoration: none;
+      display: block;
+      margin-top: 15px;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ffeb3b;
+    }
+
+    #message.error {
+      color: #ff6b6b;
+    }
+
+    #message.success {
+      color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div id="message"></div>
+    <a href="signup.html" class="link">Don't have an account? Sign Up</a>
+  </div>
+
+  <script>
+    function showMessage(text, type = "error") {
+      const msgBox = document.getElementById("message");
+      msgBox.textContent = text;
+      msgBox.className = type === "success" ? "success" : "error";
+    }
+
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      document.getElementById('username').classList.remove("error");
+      document.getElementById('password').classList.remove("error");
+
+      if (!username || !password) {
+        if (!username) document.getElementById('username').classList.add("error");
+        if (!password) document.getElementById('password').classList.add("error");
+        showMessage("Please enter both username and password.");
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      const match = users.find(u =>
+        u.username.toLowerCase() === username.toLowerCase() && u.password === password
+      );
+
+      if (match) {
+        localStorage.setItem("loggedInUser", JSON.stringify(match));
+        showMessage("Login successful! Redirecting...", "success");
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1000);
+      } else {
+        showMessage("Invalid username or password.");
+      }
+    }
+  </script>
+
+</body>
+</html>

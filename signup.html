@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tournament App - Sign Up</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    input.error {
+      border: 2px solid #ff6b6b;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #03a9f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #0288d1;
+    }
+
+    .link {
+      font-size: 14px;
+      color: #ffeb3b;
+      text-decoration: none;
+      display: block;
+      margin-top: 15px;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ffeb3b;
+    }
+
+    #message.error {
+      color: #ff6b6b;
+    }
+
+    #message.success {
+      color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Sign Up</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="text" id="mobile" placeholder="Mobile Number">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Set Password">
+    <button onclick="signup()">Sign Up</button>
+    <div id="message"></div>
+    <a href="login.html" class="link">Already have an account? Login</a>
+  </div>
+
+  <script>
+    function showMessage(text, type = "error") {
+      const msgBox = document.getElementById("message");
+      msgBox.textContent = text;
+      msgBox.className = type === "success" ? "success" : "error";
+    }
+
+    function signup() {
+      const username = document.getElementById('username').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      // Reset error styles
+      ['username', 'mobile', 'email', 'password'].forEach(id => {
+        document.getElementById(id).classList.remove("error");
+      });
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const mobilePattern = /^[0-9]{10}$/;
+
+      if (!username || !mobile || !email || !password) {
+        if (!username) document.getElementById('username').classList.add("error");
+        if (!mobile) document.getElementById('mobile').classList.add("error");
+        if (!email) document.getElementById('email').classList.add("error");
+        if (!password) document.getElementById('password').classList.add("error");
+        showMessage("Please fill all the fields.");
+        return;
+      }
+
+      if (!mobilePattern.test(mobile)) {
+        document.getElementById('mobile').classList.add("error");
+        showMessage("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+
+      if (!emailPattern.test(email)) {
+        document.getElementById('email').classList.add("error");
+        showMessage("Please enter a valid email address.");
+        return;
+      }
+
+      // Fetch existing users
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      // Check for duplicates
+      const duplicate = users.find(u =>
+  u.mobile === mobile || u.email === email || u.username.toLowerCase() === username.toLowerCase()
+);
+
+      if (duplicate) {
+        showMessage("User already exists with this mobile number or email.");
+        return;
+      }
+
+      // Store new user
+      const newUser = { username, mobile, email, password };
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      showMessage("Sign-up successful! Redirecting to login...", "success");
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500);
+    }
+  </script>
+
+</body>
+</html>

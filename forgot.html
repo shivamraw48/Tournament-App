@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Forgot Password</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .container {
+      background: rgba(255,255,255,0.1);
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background-color: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #03a9f4;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0288d1;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ffeb3b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Reset Your Password</h2>
+    <input type="email" id="resetEmail" placeholder="Enter your registered email" />
+    <button onclick="resetPassword()">Send Reset Link</button>
+    <div class="message" id="messageArea"></div>
+  </div>
+
+  <script>
+    function resetPassword() {
+      const email = document.getElementById("resetEmail").value.trim();
+      const messageArea = document.getElementById("messageArea");
+
+      if (!email) {
+        messageArea.innerText = "Please enter your email address.";
+        return;
+      }
+
+      // Simulated success message
+      messageArea.innerText = "Reset link sent to " + email;
+    }
+  </script>
+</body>
+</html>

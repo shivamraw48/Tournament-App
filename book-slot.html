@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Slot</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      padding: 30px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .slots-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 14px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .slot {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+    }
+
+    .slot input[type="checkbox"] {
+      margin-top: 8px;
+    }
+
+    .slot input[type="checkbox"]:checked + label {
+      color: #00e676;
+    }
+
+    .selected {
+      border-color: #00e676;
+      background-color: rgba(0, 230, 118, 0.2);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #00c853;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00b347;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #03a9f4;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background-color: #0288d1;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-btn" onclick="window.location.href='tournaments.html'">← Back</button>
+  <h1>Select Your Slot</h1>
+
+  <div class="slots-container" id="slotsContainer"></div>
+
+  <button onclick="confirmSlot()">Confirm Booking</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    
+    // Get tournament details from URL parameters or use defaults
+    const type = params.get("type") || "Solo";
+    const tournamentName = params.get("name") || "Unknown Tournament"; // 'name' instead of 'tournament' to match your previous code
+   // const tournamentId = params.get("tournamentId") || "unknownId";  // Default to a string instead of null for better consistency
+    
+    // Store tournamentId and name in localStorage for later use in confirm-details.html
+    //localStorage.setItem("tournamentId", tournamentId);
+    const tournamentId = params.get("tournamentId") || "unknownId"; // <-- FIXED
+
+// Store tournamentId, name, and type in localStorage for confirm-details.html
+localStorage.setItem("tournamentId", tournamentId);
+    localStorage.setItem("tournamentName", tournamentName);
+    localStorage.setItem("tournamentType", type);
+  
+    const container = document.getElementById("slotsContainer");
+  
+    let totalSlots = 0;
+    let playersPerSlot = 1;
+  
+    // Set slots based on tournament type
+    if (type === "Duo") {
+      totalSlots = 24;
+      playersPerSlot = 2;
+    } else if (type === "Squad") {
+      totalSlots = 12;
+      playersPerSlot = 4;
+    } else {
+      totalSlots = 48;
+      playersPerSlot = 1;
+    }
+  
+    // Generate slots dynamically based on the number of total slots and players per slot
+    for (let i = 1; i <= totalSlots; i++) {
+      const slot = document.createElement("div");
+      slot.className = "slot";
+      slot.innerHTML = `<strong>Slot ${i}</strong><br>`;
+  
+      for (let j = 1; j <= playersPerSlot; j++) {
+        const id = `slot-${i}-${j}`;
+        slot.innerHTML += `
+          <div>
+            <input type="checkbox" name="slot" value="${i}-${j}" id="${id}">
+            <label for="${id}">Player ${j}</label>
+          </div>`;
+      }
+  
+      container.appendChild(slot);
+    }
+  
+    // Highlight selected slots
+    container.addEventListener("change", () => {
+      document.querySelectorAll(".slot").forEach(slot => {
+        const anyChecked = slot.querySelector("input[type='checkbox']:checked");
+        slot.classList.toggle("selected", !!anyChecked);
+      });
+    });
+  
+    // Function to handle slot confirmation
+    function confirmSlot() {
+      const selectedCheckboxes = document.querySelectorAll("input[type='checkbox']:checked");
+      if (selectedCheckboxes.length === 0) {
+        alert("Please select at least one slot.");
+        return;
+      }
+  
+      const selections = [];
+      selectedCheckboxes.forEach(cb => selections.push(cb.value)); // format: 1-2, 3-1, etc.
+  
+      // Save selections and other details in localStorage
+      localStorage.setItem("selectedSlots", JSON.stringify(selections));
+  
+      // Redirect to confirm-details.html
+      window.location.href = "confirm-details.html";
+    }
+  
+    // Optionally, add an event listener for the "Confirm Slot" button if needed
+    document.getElementById("confirmSlotButton")?.addEventListener("click", confirmSlot);
+  </script>
+  
+  
+</body>
+</html>

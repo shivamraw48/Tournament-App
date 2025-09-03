@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Upcoming Tournaments</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      color: white;
+      padding: 30px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #03a9f4;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background-color: #0288d1;
+    }
+
+    .tournament-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .tournament-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+      border-left: 6px solid #00c853;
+    }
+
+    .tournament-card h3 {
+      margin: 8px 0;
+      font-size: 18px;
+    }
+
+    .tournament-details {
+      text-align: left;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .view-btn {
+      margin-top: 10px;
+      background-color: #ffc107;
+      color: black;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .view-btn:hover {
+      background-color: #e0a800;
+    }
+
+    .tournament-image {
+      width: 100%;
+      height: 100px;
+      background-color: #444;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    #viewDetailsModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #viewDetailsModal .modal-content {
+      background: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: left;
+      position: relative;
+    }
+
+    #viewDetailsModal button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+
+  <h1>My Upcoming Tournaments</h1>
+
+  <div id="upcomingContainer" class="tournament-list"></div>
+
+  <div id="viewDetailsModal">
+    <div class="modal-content">
+      <h3>Your Booking Details</h3>
+      <p><strong>In-Game Name:</strong> <span id="viewIGN"></span></p>
+      <p><strong>UID:</strong> <span id="viewUID"></span></p>
+      <p><strong>Booked Slots:</strong></p>
+      <ul id="viewSlots" style="padding-left: 20px;"></ul>
+      <button onclick="closeModal()">X</button>
+    </div>
+  </div>
+
+  <script>
+    function showDetailsModal(data) {
+      document.getElementById("viewIGN").textContent = localStorage.getItem("userIGN") || "N/A";
+      document.getElementById("viewUID").textContent = localStorage.getItem("userUID") || "N/A";
+      const list = document.getElementById("viewSlots");
+      list.innerHTML = "";
+      data.slots.forEach(slot => {
+        const li = document.createElement("li");
+        li.textContent = `Slot ${slot.split('-')[0]}, Position ${slot.split('-')[1]}`;
+        list.appendChild(li);
+      });
+      document.getElementById("viewDetailsModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("viewDetailsModal").style.display = "none";
+    }
+
+    window.onload = () => {
+      const container = document.getElementById('upcomingContainer');
+      const bookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+
+      bookings.forEach(data => {
+        // For now, randomly assigning status
+        const status = data.status || "Upcoming";
+
+        if (status !== "Upcoming") return;
+
+        const card = document.createElement("div");
+        card.className = "tournament-card";
+
+        card.innerHTML = `
+          <div class="tournament-image"></div>
+          <h3>${data.tournament}</h3>
+          <div class="tournament-details">
+            <p><strong>Type:</strong> ${data.type}</p>
+            <p><strong>IGN:</strong> ${data.ign}</p>
+            <p><strong>UID:</strong> ${data.uid}</p>
+            <p><strong>Slot(s):</strong> ${data.slots.map(s => `Slot ${s.split('-')[0]}, Pos ${s.split('-')[1]}`).join(', ')}</p>
+          </div>
+          <button class="view-btn" onclick='showDetailsModal(${JSON.stringify(data)})'>View Details</button>
+        `;
+
+        container.appendChild(card);
+      });
+    };
+  </script>
+
+</body>
+</html>

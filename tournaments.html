@@ -1,0 +1,384 @@
+<!DOCTYPE html>  
+<html>
+<head>
+  <title>Tournaments</title>
+  <style>
+    /* --- Same CSS as you provided (no changes) --- */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      color: white;
+      padding: 30px;
+      margin: 0;
+      text-align: center;
+    }
+    h1 { margin-bottom: 20px; }
+    .top-buttons, .filter-buttons { margin: 10px 0; }
+    .top-buttons button, .filter-buttons button {
+      padding: 10px 18px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .top-buttons button {
+      background-color: #ff6f61;
+      color: white;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    }
+    .top-buttons button:hover { background-color: #e65c50; }
+    .filter-buttons button {
+      background-color: #00bcd4;
+      color: white;
+    }
+    .filter-buttons button:hover { background-color: #0097a7; }
+    .tournament-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .tournament-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    .tournament-card h3 {
+      margin: 8px 0;
+      font-size: 18px;
+    }
+    .join-btn {
+      margin-top: 10px;
+      background-color: #ffc107;
+      color: black;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .join-btn:hover {
+      background-color: #e0a800;
+    }
+    .join-btn.full {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+    .tournament-details {
+      text-align: left;
+      font-size: 13px;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .tournament-details p {
+      width: 48%;
+      margin: 2px 0;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #03a9f4;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .back-btn:hover { background-color: #0288d1; }
+    .tournament-image {
+      width: 100%;
+      height: 100px;
+      background-color: #444;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    #viewDetailsModal, #idPassModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: left;
+      position: relative;
+    }
+    .modal-content button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .show-id-btn {
+      margin-top: 8px;
+      background-color: #4caf50;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .show-id-btn:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+
+  <div class="top-buttons" style="margin-top: 20px;">
+    <h2>My Tournaments</h2>
+    <button onclick="goTo('my-upcoming.html')" style="background-color:#00c853;">Upcoming</button>
+    <button onclick="goTo('my-ongoing.html')" style="background-color:#ffc107; color:black;">Ongoing</button>
+    <button onclick="goTo('completed.html')" style="background-color:#f44336;">Completed</button>
+  </div>
+
+  <h1>All Tournaments</h1>
+
+  <div class="filter-buttons">
+    <button onclick="filterTournaments('fullmap')">FULL MAP</button>
+    <button onclick="filterTournaments('clashsquad')">CLASH SQUAD</button>
+  </div>
+
+  <div id="tournamentContainer" class="tournament-list"></div>
+
+  <div id="viewDetailsModal">
+    <div class="modal-content">
+      <h3>Your Booking Details</h3>
+      <p><strong>In-Game Name:</strong> <span id="viewIGN"></span></p>
+      <p><strong>UID:</strong> <span id="viewUID"></span></p>
+      <p><strong>Booked Slots:</strong></p>
+      <ul id="viewSlots" style="padding-left: 20px;"></ul>
+      <button onclick="closeModal()">X</button>
+    </div>
+  </div>
+
+  <div id="idPassModal">
+    <div class="modal-content">
+      <h3>Room ID & Password</h3>
+      <p><strong>Room ID:</strong> <span id="roomID"></span></p>
+      <p><strong>Password:</strong> <span id="roomPass"></span></p>
+      <button onclick="closeModal()">X</button>
+    </div>
+  </div>
+
+  <script>
+    function goTo(page) {
+      window.location.href = page;
+    }
+  
+    function filterTournaments(type) {
+      const cards = document.querySelectorAll('.tournament-card');
+      cards.forEach(card => {
+        card.style.display = (card.getAttribute('data-type') === type) ? "block" : "none";
+      });
+    }
+  function handleJoin(button) {
+  const tournamentId = button.getAttribute("data-id");
+  const name = button.getAttribute("data-name");
+  const type = button.getAttribute("data-type");
+  const bookingId = button.getAttribute("data-booking-id");
+
+  const bookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+  const alreadyBooked = bookings.find(b => b.tournamentId === tournamentId);
+
+  if (alreadyBooked) {
+    showDetailsModal(alreadyBooked);
+  } else {
+    // Store info for next page
+    localStorage.setItem("tournamentId", tournamentId);
+    localStorage.setItem("tournamentName", name);
+    localStorage.setItem("tournamentType", type);
+
+    window.location.href = `book-slot.html?tournamentId=${tournamentId}&name=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}&bookingId=${bookingId}`;
+  }
+}
+
+// When confirming a slot, update userBookings in localStorage
+function confirmBooking(tournamentId, slots) {
+  const bookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+
+  // Add new booking (or update if already exists)
+  const updatedBookings = bookings.filter(b => b.tournamentId !== tournamentId); // Remove any existing booking for this tournament
+  updatedBookings.push({
+    tournamentId,
+    slots,  // Array of selected slots
+    players,
+    tournament: `Tournament ${tournamentId}`, // Assuming the name is tied to the ID, you can adjust if needed
+    roomID: "SampleRoomID",  // Can be replaced by actual data
+    roomPass: "SampleRoomPass" // Can be replaced by actual data
+  });
+
+  // Save updated bookings to localStorage
+  localStorage.setItem("userBookings", JSON.stringify(updatedBookings));
+
+  // Redirect to the main page (or wherever appropriate)
+  window.location.href = "tournaments.html";  // You can redirect back to the tournaments page
+}
+
+
+  
+function showDetailsModal(data) {
+  // Show first player as main IGN/UID
+  if (data.players && data.players.length > 0) {
+    document.getElementById("viewIGN").textContent = data.players[0].ign || "N/A";
+    document.getElementById("viewUID").textContent = data.players[0].uid || "N/A";
+  } else {
+    document.getElementById("viewIGN").textContent = "N/A";
+    document.getElementById("viewUID").textContent = "N/A";
+  }
+
+  const list = document.getElementById("viewSlots");
+  list.innerHTML = "";
+
+  if (data.slots && data.slots.length > 0) {
+    data.slots.forEach((slot, index) => {
+      const playerInfo = data.players[index] || { ign: "N/A", uid: "N/A" };
+      const li = document.createElement("li");
+      li.textContent = `Slot ${slot} - IGN: ${playerInfo.ign}, UID: ${playerInfo.uid}`;
+      list.appendChild(li);
+    });
+  } else {
+    list.innerHTML = "<li>No slots booked</li>";
+  }
+
+  document.getElementById("viewDetailsModal").style.display = "flex";
+
+}
+  
+    function showIdPassModal(roomID, roomPass) {
+      document.getElementById("roomID").textContent = roomID || "Not Available";
+      document.getElementById("roomPass").textContent = roomPass || "Not Available";
+      document.getElementById("idPassModal").style.display = "flex";
+    }
+  
+    function closeModal() {
+      document.getElementById("viewDetailsModal").style.display = "none";
+      document.getElementById("idPassModal").style.display = "none";
+    }
+  
+    window.onload = () => {
+  const container = document.getElementById('tournamentContainer');
+  container.innerHTML = '';
+  const bookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+  const allTournaments = [];
+
+  for (let i = 0; i < 10; i++) {
+    const name = `Full Map Match ${i + 1}`;
+    const tournamentId = `fullmap-${i+101}`;
+    const entry = 10, perKill = 2, winning = 100, map = "Bermuda", date = `1${i}-Apr`, time = "6:00 PM";
+    const type = "Solo";
+    const joined = 20 + i;
+
+    allTournaments.push({
+      tournamentId,
+      name,
+      type,
+      entry,
+      perKill,
+      map,
+      winning,
+      date,
+      time
+    });
+
+    const booking = bookings.find(b => b.tournamentId === tournamentId);
+    const bookingId = booking ? booking.bookingId : null;  // Retrieve bookingId if exists
+
+
+    container.innerHTML += `
+      <div class="tournament-card" data-type="fullmap" data-id="${tournamentId}">
+        <div class="tournament-image"></div>
+        <h3>${name}</h3>
+        <div class="tournament-details">
+          <p>Entry: ₹${entry}</p><p>Per Kill: ₹${perKill}</p><p>Map: ${map}</p><p>Winning: ₹${winning}</p><p>Type: ${type}</p>
+          <p>Date: ${date}</p><p>Time: ${time}</p><p><strong>Joined:</strong> ${joined} / 48</p>
+        </div>
+        <button class="join-btn ${booking ? 'full' : ''}" 
+        data-id="${tournamentId}" 
+        data-name="${name}" 
+        data-type="${type}" 
+        
+        onclick="handleJoin(this)">
+  ${booking ? 'View Details' : 'Join'}
+</button>
+
+        ${booking ? `<button class="show-id-btn" onclick="showIdPassModal('${booking.roomID || ''}', '${booking.roomPass || ''}')">Show ID & Pass</button>` : ''}
+      </div>`;
+  }
+
+  for (let i = 0; i < 10; i++) {
+    const name = `Clash Squad Battle ${i + 1}`;
+    const tournamentId = `clashsquad-${i+101}`;
+    const entry = 15, perKill = 3, winning = 150, map = "Kalahari", date = `2${i}-Apr`, time = "5:30 PM";
+    const type = "Duo";
+    const joined = 15 + i;
+
+    allTournaments.push({
+      tournamentId,
+      name,
+      type,
+      entry,
+      perKill,
+      map,
+      winning,
+      date,
+      time
+    });
+
+    const booking = bookings.find(b => b.tournamentId === tournamentId);
+
+    container.innerHTML += `
+      <div class="tournament-card" data-type="clashsquad" data-id="${tournamentId}">
+        <div class="tournament-image"></div>
+        <h3>${name}</h3>
+        <div class="tournament-details">
+          <p>Entry: ₹${entry}</p><p>Per Kill: ₹${perKill}</p><p>Map: ${map}</p><p>Winning: ₹${winning}</p><p>Type: ${type}</p>
+          <p>Date: ${date}</p><p>Time: ${time}</p><p><strong>Joined:</strong> ${joined} / 48</p>
+        </div>
+        <button class="join-btn ${booking ? 'full' : ''}" 
+        data-id="${tournamentId}" 
+        data-name="${name}" 
+        data-type="${type}" 
+        onclick="handleJoin(this)">
+  ${booking ? 'View Details' : 'Join'}
+</button>
+
+        ${booking ? `<button class="show-id-btn" onclick="showIdPassModal('${booking.roomID || ''}', '${booking.roomPass || ''}')">Show ID & Pass</button>` : ''}
+      </div>`;
+  }
+
+  // ✅ Store all tournament info in localStorage
+  localStorage.setItem("allTournaments", JSON.stringify(allTournaments));
+
+  filterTournaments('fullmap'); // default view
+};
+
+
+  </script>
+  
+
+</body>
+</html>

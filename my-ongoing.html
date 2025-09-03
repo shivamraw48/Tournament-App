@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Ongoing Tournaments</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      color: white;
+      padding: 30px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .tournament-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .tournament-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .tournament-card h3 {
+      margin: 8px 0;
+      font-size: 18px;
+    }
+
+    .tournament-details {
+      text-align: left;
+      font-size: 13px;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tournament-details p {
+      width: 48%;
+      margin: 2px 0;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #03a9f4;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background-color: #0288d1;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-btn" onclick="window.location.href='tournaments.html'">← Back</button>
+  <h1>My Ongoing Tournaments</h1>
+
+  <div id="tournamentList" class="tournament-list"></div>
+
+  <script>
+    const bookings = JSON.parse(localStorage.getItem("userBookings") || "[]");
+    const container = document.getElementById("tournamentList");
+
+    const today = new Date().toISOString().split('T')[0];
+
+    bookings.forEach(booking => {
+      const tournamentDate = new Date(booking.date).toISOString().split('T')[0];
+
+      if (tournamentDate === today) {
+        const div = document.createElement("div");
+        div.className = "tournament-card";
+        div.innerHTML = `
+          <h3>${booking.tournament}</h3>
+          <div class="tournament-details">
+            <p><strong>IGN:</strong> ${localStorage.getItem("userIGN")}</p>
+            <p><strong>UID:</strong> ${localStorage.getItem("userUID")}</p>
+            <p><strong>Type:</strong> ${booking.type}</p>
+            <p><strong>Date:</strong> ${booking.date}</p>
+            <p><strong>Time:</strong> ${booking.time}</p>
+            <p><strong>Slots:</strong> ${booking.slots.join(', ')}</p>
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    });
+  </script>
+
+</body>
+</html>

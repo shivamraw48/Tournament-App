@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Profile</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      color: white;
+      text-align: center;
+      padding: 40px;
+      margin: 0;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #03a9f4;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      background-color: white;
+      border-radius: 50%;
+      margin: 60px auto 20px;
+      background-image: url('logo-placeholder.png'); /* Replace with your logo path */
+      background-size: cover;
+      background-position: center;
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      width: 150px;
+      font-size: 16px;
+    }
+
+    .section-title {
+      margin-top: 40px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .btn {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .btn.change {
+      background-color: #2196f3;
+    }
+
+    .btn.logout {
+      background-color: #e53935;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+
+  <div class="logo"></div>
+
+  <h2 id="usernameDisplay">Username</h2>
+
+  <div class="stats">
+    <div class="stat-box">
+      <strong>Matches Played</strong>
+      <p>7</p>
+    </div>
+    <div class="stat-box">
+      <strong>Amount Won</strong>
+      <p>₹120</p>
+    </div>
+  </div>
+
+  <div class="section-title">My Wallet</div>
+  <p id="walletBalance">₹0</p>
+
+  <button class="btn change">Change Password</button><br/>
+  <button class="btn logout" onclick="logout()">Logout</button>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+const username = user?.username || "Guest";
+const wallet = user?.wallet || "0";
+
+document.getElementById("usernameDisplay").innerText = username;
+document.getElementById("walletBalance").innerText = "₹" + wallet;
+
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  window.location.href = "login.html";
+}
+
+  </script>
+<script src="wallet-sync.js"></script>
+
+</body>
+</html>

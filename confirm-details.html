@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enter In-Game Details</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: transparent;
+      border: none;
+      color: #4caf50;
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 60px;
+      margin-bottom: 20px;
+    }
+
+    .form-container {
+      max-width: 500px;
+      background: #2c2c2c;
+      padding: 25px;
+      border-radius: 12px;
+      margin: 0 auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #444;
+      color: #fff;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    .confirmation {
+      display: none;
+      max-width: 500px;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 60px auto 0;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .confirmation h3 {
+      color: #4caf50;
+      margin-bottom: 15px;
+    }
+
+    .confirmation p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .confirmation .go-home {
+      margin-top: 20px;
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .confirmation .go-home:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="goBack()">← Back</button>
+
+  <h2>Enter In-Game Name & UID</h2>
+
+  <div class="form-container" id="formContainer">
+    <form id="ignForm"></form>
+  </div>
+
+  <div class="confirmation" id="confirmationBox">
+    <h3>Booking Confirmed 🎉</h3>
+    <div id="playersList"></div>
+    <p><strong>Slot Number:</strong> <span id="confirmSlot"></span></p>
+    <p><strong>Tournament Type:</strong> <span id="confirmType"></span></p>
+    <p><strong>Position:</strong> <span id="confirmPosition"></span></p>
+    <button class="go-home" onclick="goHome()">Go to Tournaments</button>
+  </div>
+
+  <script>
+    const form = document.getElementById('ignForm');
+    const formContainer = document.getElementById('formContainer');
+    const confirmationBox = document.getElementById('confirmationBox');
+    const selectedSlots = JSON.parse(localStorage.getItem('selectedSlots')) || [];
+  
+    if (selectedSlots.length === 0) {
+      console.log("No slots selected.");
+    } else {
+      console.log("Selected Slots:", selectedSlots);
+    }
+  
+    const tournamentType = localStorage.getItem('tournamentType') || 'Unknown';
+    const tournamentName = localStorage.getItem('tournamentName') || 'Unknown Tournament';
+    const tournamentId = localStorage.getItem('tournamentId');  // Ensure this is set in localStorage when the user clicks 'Join'
+    const tournamentDateTime = localStorage.getItem('tournamentDateTime') || 'Unknown Date and Time';
+  
+    const position = tournamentType === "Duo" ? "Team" :
+                     tournamentType === "Squad" ? "Squad" : "Player";
+  
+    // Generate dynamic fields if slots are selected
+    selectedSlots.forEach((slot, index) => {
+      const labelIGN = document.createElement('label');
+      labelIGN.textContent = `Player ${index + 1} In-Game Name:`;
+      const inputIGN = document.createElement('input');
+      inputIGN.type = "text";
+      inputIGN.name = `ign${index}`;
+      inputIGN.required = true;
+  
+      const labelUID = document.createElement('label');
+      labelUID.textContent = `Player ${index + 1} UID:`;
+      const inputUID = document.createElement('input');
+      inputUID.type = "text";
+      inputUID.name = `uid${index}`;
+      inputUID.required = true;
+  
+      form.appendChild(labelIGN);
+      form.appendChild(inputIGN);
+      form.appendChild(labelUID);
+      form.appendChild(inputUID);
+    });
+  
+    const submitBtn = document.createElement('button');
+    submitBtn.type = "submit";
+    submitBtn.textContent = "Submit";
+    form.appendChild(submitBtn);
+  
+    // Function to generate a unique booking ID
+    function generateBookingId() {
+      return 'BID-' + Math.random().toString(36).substr(2, 9); // Generates a unique ID starting with "BID-"
+    }
+  
+    // Inside form submit event listener, update the booking object
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const players = [];
+  for (let i = 0; i < selectedSlots.length; i++) {
+    const ign = form.elements[`ign${i}`].value;
+    const uid = form.elements[`uid${i}`].value;
+    players.push({ ign, uid });
+  }
+
+  const booking = {
+    bookingId: generateBookingId(),
+    tournamentId: tournamentId,
+    tournament: tournamentName, // Use 'tournament' for consistency
+    type: tournamentType,
+    slots: selectedSlots,
+    players: players, // <-- FIXED: store the actual players array
+    date: tournamentDateTime.split(' ')[0] || '', // Optional: parse date if needed
+    time: tournamentDateTime.split(' ')[1] || '', // Optional: parse time if needed
+    bookingDate: new Date().toISOString()
+  };
+
+  let bookings = JSON.parse(localStorage.getItem("userBookings")) || [];
+  bookings = bookings.filter(b => b.tournamentId !== tournamentId);
+  bookings.push(booking);
+  localStorage.setItem("userBookings", JSON.stringify(bookings));
+  localStorage.setItem('bookingConfirmed', 'true');
+
+  // ...confirmation UI code...
+
+  
+      // Confirmation output
+      const playersList = document.getElementById('playersList');
+      playersList.innerHTML = '';
+      players.forEach((p, i) => {
+        playersList.innerHTML += ` 
+          <p><strong>Player ${i + 1} IGN:</strong> ${p.ign}</p>
+          <p><strong>Player ${i + 1} UID:</strong> ${p.uid}</p>
+          <hr style="border: 0.5px solid #444;">
+        `;
+      });
+  
+      document.getElementById('confirmSlot').textContent = selectedSlots.join(', ');
+      document.getElementById('confirmType').textContent = tournamentType;
+      document.getElementById('confirmPosition').textContent = position;
+  
+      formContainer.style.display = 'none';
+      confirmationBox.style.display = 'block';
+    });
+  
+    function goBack() {
+      const isConfirmed = localStorage.getItem('bookingConfirmed') === 'true';
+      window.location.href = isConfirmed ? 'tournaments.html' : 'book-slot.html';
+    }
+  
+    function goHome() {
+      window.location.href = 'tournaments.html';
+    }
+  
+  </script>
+  
+  
+</body>
+</html>
